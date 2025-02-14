@@ -2,12 +2,15 @@ package com.example.agenda
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.view.Gravity
 import android.widget.Button
 import android.widget.CalendarView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import org.json.JSONArray
@@ -52,42 +55,66 @@ class MainActivity : ComponentActivity() {
 
     }
 
-    fun display(previewEvent:LinearLayout){
-        val sharendPreference = getSharedPreferences(getString(R.string.agenda), MODE_PRIVATE)
-        var date = selectedDate
-        var jsonarray = JSONArray()
-        val value = sharendPreference.getString(date,"Nothing to do today")
+    fun display(previewEvent: LinearLayout) {
+        val sharedPreferences = getSharedPreferences(getString(R.string.agenda), MODE_PRIVATE)
+        val date = selectedDate
+        val value = sharedPreferences.getString(date, "Nothing to do today")
         previewEvent.removeAllViews()
-        if (value == "Nothing to do today")
-        {
+
+        if (value == "Nothing to do today" || value == "[]") {
             val textView = TextView(this).apply {
                 text = "Nothing to do today"
                 textSize = 16f
                 setPadding(16, 16, 16, 16)
+                setTextColor(Color.parseColor("#757575"))
+                gravity = Gravity.CENTER
             }
             previewEvent.addView(textView)
-        }else{
-            jsonarray = JSONArray(value)
-            var index = 0
-            while (index < jsonarray.length()){
-                val textView = TextView(this).apply {
-                    text = jsonarray.getString(index)
-                    textSize = 16f
+        } else {
+            val jsonArray = JSONArray(value)
+            for (index in 0 until jsonArray.length()) {
+                val event = jsonArray.getString(index)
+                val eventLayout = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
                     setPadding(16, 16, 16, 16)
-                    setTextColor(Color.parseColor("#000000"))
-                    if (((index+2) % 2) == 0){
-                        setBackgroundColor(Color.parseColor("#cdf1c7"))
-                    }else{
-                        setBackgroundColor(Color.parseColor("#c7e6f1"))
+                    background = if ((index + 1) % 2 == 0) {
+                        ColorDrawable(Color.parseColor("#cdf1c7"))
+                    } else {
+                        ColorDrawable(Color.parseColor("#c7e6f1"))
                     }
                 }
-                previewEvent.addView(textView)
-                index += 1
+
+                val button = Button(this).apply {
+                    text = "Suppression"
+
+                    setOnClickListener {
+
+                        jsonArray.remove(index);
+                        Toast.makeText(context, "Suppresion complete", Toast.LENGTH_SHORT).show()
+                        with (sharedPreferences.edit()){
+                            putString(date, jsonArray.toString())
+                            apply()
+                        }
+                        display(previewEvent)
+
+                    }
+                }
+
+                val textView = TextView(this).apply {
+                    text = event
+                    textSize = 16f
+                    setTextColor(Color.parseColor("#000000"))
+                    setPadding(16, 0, 0, 0)
+                }
+
+
+                eventLayout.addView(textView)
+                eventLayout.addView(button)
+                previewEvent.addView(eventLayout)
             }
         }
-
-
-
     }
+
+
 }
 

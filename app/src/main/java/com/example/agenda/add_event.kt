@@ -1,7 +1,6 @@
 package com.example.agenda
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -9,11 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import org.json.JSONArray
-import java.util.HashMap
 
 class add_event : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +49,7 @@ class add_event : ComponentActivity() {
         }
 
         mainMenuButton.setOnClickListener {
-            var intent_main_menu = Intent(this,MainActivity::class.java)
+            val intent_main_menu = Intent(this,MainActivity::class.java)
             startActivity(intent_main_menu)
         }
 
